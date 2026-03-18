@@ -38,7 +38,7 @@ RUN chmod +x node_modules/.bin/* && npm run build
 FROM node:20-alpine
 
 # Install runtime dependencies:
-# - curl: for health checks and API diagnostics
+# - curl: for diagnostics
 # - tini: init process for proper signal handling (PID 1)
 RUN apk add --no-cache curl tini
 
@@ -70,14 +70,7 @@ RUN mkdir -p ./backend/uploads && chmod 755 ./backend/uploads
 # Set working directory to backend for execution
 WORKDIR /app/backend
 
-# ============================================
-# Health Check Configuration
-# ============================================
-# Docker will check every 30 seconds if the app is healthy
-# If 3 consecutive checks fail, container is marked unhealthy
-# Coolify will automatically restart unhealthy containers
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-5000}/api/health || exit 1
+
 
 # ============================================
 # Runtime Configuration
