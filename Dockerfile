@@ -29,8 +29,8 @@ COPY frontend/ .
 
 # Build React app with Vite
 # Output: /app/frontend/dist
-# Explicitly set permissions and run with bash to ensure vite is executable
-RUN chmod +x node_modules/.bin/* && bash -c "npm run build"
+# Use sh (Alpine's default shell) instead of bash to avoid missing bash in alpine
+RUN chmod +x node_modules/.bin/* && npm run build
 
 # ============================================
 # STAGE 2: Production Runtime
