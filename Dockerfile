@@ -22,7 +22,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # Install frontend dependencies (optimized for production build)
-RUN npm ci --prefer-offline --no-audit
+RUN npm ci --prefer-offline --no-audit && chmod -R 755 node_modules/.bin/
 
 # Copy frontend source code
 COPY frontend/ .
