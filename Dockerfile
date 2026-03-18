@@ -29,7 +29,8 @@ COPY frontend/ .
 
 # Build React app with Vite
 # Output: /app/frontend/dist
-RUN npm run build
+# Explicitly set permissions and run with bash to ensure vite is executable
+RUN chmod +x node_modules/.bin/* && bash -c "npm run build"
 
 # ============================================
 # STAGE 2: Production Runtime
