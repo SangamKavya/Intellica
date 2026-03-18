@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const HOD = require("../models/HOD");
 const Faculty = require("../models/Faculty");
-const User = require("../models/user");
+const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
 
