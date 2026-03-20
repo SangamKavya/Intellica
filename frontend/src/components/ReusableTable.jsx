@@ -29,11 +29,11 @@ function ReusableTable({ columns = [], data = [], onEdit, onResubmit, onView }) 
 
   return (
 
-    <div style={outerWrapper}>
+    <div style={outerWrapper} className="table-outer fade-in">
 
-      <div style={scrollWrapper}>
+      <div style={scrollWrapper} className="table-scroll">
 
-        <table style={table}>
+        <table style={table} className="responsive-table">
 
           <thead>
 

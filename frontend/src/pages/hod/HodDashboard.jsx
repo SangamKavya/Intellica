@@ -25,6 +25,7 @@ import MOUs from "../faculty/categories/MOUs";
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import HodHeader from "./HodHeader";
+import Sidebar from "../../components/Sidebar";
 import API_BASE from "../../api";
 
 /* ================= PROFILE INFO ================= */
@@ -202,67 +203,44 @@ const hodId = hodUser?._id || user?._id;
 
         {/* ================= SIDEBAR ================= */}
 
-        <div style={sidebar}>
+        <Sidebar
+          menu={menuItems}
+          onSelect={(key) => setView(key)}
+          profile={(
+            <div style={profileSection}>
+              <img
+                src={
+                  profileImage
+                    ? `http://localhost:5000/uploads/${profileImage}`
+                    : "https://via.placeholder.com/240x200"
+                }
+                alt="Profile"
+                style={profileImageStyle}
+                onClick={handleImageClick}
+              />
 
-  {/* TOP SECTION */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
 
-  <div>
+              <div style={changeText} onClick={handleImageClick}>
+                Click to change image
+              </div>
 
-    <div style={profileSection}>
-
-      <img
-        src={
-          profileImage
-            ? `http://localhost:5000/uploads/${profileImage}`
-            : "https://via.placeholder.com/240x200"
-        }
-        alt="Profile"
-        style={profileImageStyle}
-        onClick={handleImageClick}
-      />
-
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={handleImageChange}
-      />
-
-      <div style={changeText} onClick={handleImageClick}>
-        Click to change image
-      </div>
-
-      <ProfileInfo user={user} />
-
-    </div>
-
-    <div style={sidebarTitle}>Intellica</div>
-
-    {menuItems.map(item => (
-
-      <div
-        key={item.key}
-        onClick={() => setView(item.key)}
-        style={{
-          ...menuItem,
-          ...(view === item.key ? activeItem : {})
-        }}
-      >
-        {item.label}
-      </div>
-
-    ))}
-
-  </div>
-
-
-  {/* BOTTOM SECTION */}
-
-  <button style={logoutBtn} onClick={handleLogout}>
-    Logout
-  </button>
-
-</div>
+              <ProfileInfo user={user} />
+            </div>
+          )}
+          bottom={(
+            <div style={{ padding: 8 }}>
+              <button onClick={handleLogout} style={{ padding: "8px 14px", background: "#ef4444", color: "white", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>
+                Logout
+              </button>
+            </div>
+          )}
+        />
 
 
         {/* ================= CONTENT ================= */}
