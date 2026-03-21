@@ -103,32 +103,13 @@ function Register({ setPage }) {
 
       {/* ===== Top Left Back Button ===== */}
       <div className="top-left-actions">
-        <button
-          onClick={() => setPage("login")}
-          style={{
-            padding: "10px 20px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            cursor: "pointer",
-            border: "2px solid transparent",
-            color: "white",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            fontSize: "14px",
-          }}
-        >
+        <button onClick={() => setPage("login")} className="btn-primary">
           ← Back to Login
         </button>
       </div>
 
       {/* Overlay */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "rgba(0,0,0,0.55)",
-          zIndex: -1,
-        }}
-      />
+      <div className="overlay-backdrop" />
 
       <div className="responsive-center">
         <div className="glass-card responsive-card">
@@ -219,11 +200,7 @@ function Register({ setPage }) {
             type="file"
             accept="image/*"
             onChange={(e) => setProfileImage(e.target.files[0])}
-            style={{
-              width: "100%",
-              marginBottom: "18px",
-              color: "white",
-            }}
+            className="file-input"
           />
 
           <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>

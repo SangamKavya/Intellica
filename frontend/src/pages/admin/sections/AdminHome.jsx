@@ -19,6 +19,7 @@ const token = localStorage.getItem("token");
 
 /* ================= FETCH DASHBOARD DATA ================= */
 
+
 useEffect(()=>{
 
 const fetchStats = async()=>{
@@ -122,17 +123,15 @@ return(
 
 <div className="dashboard-container">
 
-<h2 className="dashboard-title" style={{marginBottom:5}}>
+<h2 className="dashboard-title">
 Welcome, Admin 👋
 </h2>
 
-<p style={{opacity:0.7,fontSize:"14px"}}>
-System overview at a glance
-</p>
+<p className="dashboard-subtitle">System overview at a glance</p>
 
 {/* ================= STATS CARDS ================= */}
 
-<div className="summary-row" style={{marginTop:30}}>
+<div className="summary-row">
 
 <StatCard
 title="Departments"
@@ -156,9 +155,9 @@ onClick={()=>setView("approve")}
 
 {/* ================= TOP DEPARTMENTS ================= */}
 
-<h3 style={{marginTop:40,fontSize:responsive.isMobile ? "18px" : "20px"}}>Top Departments (Credits)</h3>
+<h3 className="section-heading">Top Departments (Credits)</h3>
 
-<div style={{marginTop:15}}>
+<div className="section-block">
 
 {topDepartments.map((d,i)=>(
 
@@ -182,9 +181,9 @@ onClick={()=>setView("approve")}
 
 {/* ================= MOST POPULAR ACTIVITIES ================= */}
 
-<h3 style={{marginTop:40,fontSize:responsive.isMobile ? "18px" : "20px"}}>Most Popular Activities</h3>
+<h3 className="section-heading">Most Popular Activities</h3>
 
-<div style={{marginTop:15}}>
+<div className="section-block">
 
 {activityStats.map((a,i)=>{
 

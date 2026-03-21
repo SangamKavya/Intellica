@@ -539,7 +539,8 @@ img{ max-width:100%; height:auto; display:block; }
 
 /* ================= RESPONSIVE UTILITIES ================= */
 .responsive-center {
-  min-height: 100vh;
+  /* Center in the area below the fixed header */
+  min-height: calc(100vh - var(--header-height));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -564,11 +565,11 @@ img{ max-width:100%; height:auto; display:block; }
 
 .top-right-actions, .top-left-actions {
   position: fixed;
-  top: 0;
+  top: 12px; /* sit below the header edge */
   padding: 18px 22px;
   display: flex;
   gap: 10px;
-  z-index: 5;
+  z-index: 650; /* above header so buttons are clickable */
   flex-wrap: wrap;
 }
 

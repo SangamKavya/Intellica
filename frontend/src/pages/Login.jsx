@@ -133,9 +133,7 @@ function Login({ setPage, setUserRole }) {
 
       {/* ===== Top Right Buttons ===== */}
       <div className="top-right-actions">
-        <HoverButton onClick={() => setPage("register")}>
-          Register
-        </HoverButton>
+        <button className="btn-primary" onClick={() => setPage("register")}>Register</button>
       </div>
 
       {/* ===== Login Card ===== */}
@@ -143,6 +141,7 @@ function Login({ setPage, setUserRole }) {
         <form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP} className="glass-card responsive-card">
 
           <StyledInput
+            className="form-control"
             type="text"
             value={employeeId}
             onChange={(e) => setEmployeeId(e.target.value)}
@@ -211,9 +210,9 @@ function Login({ setPage, setUserRole }) {
           )}
 
           <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-            <HoverButton type="submit">
+            <button type="submit" className="btn-primary">
               {loading ? "Processing..." : otpSent ? "Verify OTP" : "Send OTP"}
-            </HoverButton>
+            </button>
           </div>
 
           {otpSent && (
