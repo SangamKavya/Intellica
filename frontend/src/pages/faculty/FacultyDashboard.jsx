@@ -138,7 +138,7 @@ function FacultyDashboard({ setPage, readOnly = false, facultyId = null }) {
     <div style={wrapper}>
       <FacultyHeader user={user} readOnly={readOnly} />
 
-      <div style={layout}>
+      <div style={layout} className="faculty-layout">
         <Sidebar
           menu={menuItems}
           onSelect={(key) => {
@@ -173,10 +173,10 @@ function FacultyDashboard({ setPage, readOnly = false, facultyId = null }) {
           ))}
         />
 
-        <div style={content}>
+        <div style={content} className="faculty-content">
           {view === "dashboard" && (
             <>
-              <div style={dashboardHeader}>
+              <div style={dashboardHeader} className="dashboard-header">
                 <h2>Academic Performance Overview</h2>
 
                 <div style={{ display: "flex", gap: 10 }}>
@@ -186,12 +186,12 @@ function FacultyDashboard({ setPage, readOnly = false, facultyId = null }) {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 20, marginTop: 30 }}>
+              <div style={{ display: "flex", gap: 20, marginTop: 30 }} className="summary-row">
                 <SummaryCard title="Total Credits" value={totalCredits} />
                 <SummaryCard title="Your Rank" value="—" />
               </div>
 
-              <div style={cardGrid}>
+              <div style={cardGrid} className="card-grid">
                 <CategoryCard title="Publications" value={byCategory("publication")} onClick={() => openCategory("rnd-publications")} />
                 <CategoryCard title="Conferences" value={byCategory("conference")} onClick={() => openCategory("conferences")} />
                 <CategoryCard title="Workshops" value={byCategory("workshop")} onClick={() => openCategory("workshops")} />
@@ -231,7 +231,7 @@ export default FacultyDashboard;
 function SummaryCard({ title, value }) {
   const [hover, setHover] = useState(false);
   return (
-    <div style={{ ...summaryCard, ...(hover ? summaryHover : {}) }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="summary-card" style={{ ...summaryCard, ...(hover ? summaryHover : {}) }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <h2>{value}</h2>
       <p>{title}</p>
     </div>
@@ -241,7 +241,7 @@ function SummaryCard({ title, value }) {
 function CategoryCard({ title, value, onClick }) {
   const [hover, setHover] = useState(false);
   return (
-    <div style={{ ...categoryCard, ...(hover ? categoryHover : {}) }} onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="category-card" style={{ ...categoryCard, ...(hover ? categoryHover : {}) }} onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <h3>{title}</h3>
       <p>Credits Earned</p>
       <h2>{value}</h2>

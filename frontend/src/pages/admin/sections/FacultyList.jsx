@@ -7,6 +7,7 @@ import HodDashboard from "../../hod/HodDashboard";
 export default function FacultyList() {
 
 const [users, setUsers] = useState([]);
+const [showPending, setShowPending] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
 const [search,setSearch] = useState("");
 const [selectedDept, setSelectedDept] = useState(null);
@@ -33,14 +34,20 @@ const fetchUsers = async () => {
 
 try {
 
-  const res = await fetch(`${API_BASE}/admin/all-users`,{
+  const endpoint = showPending ? 
+    `${API_BASE}/admin/pending-faculty` :
+    `${API_BASE}/admin/all-users`;
+
+  const res = await fetch(endpoint,{
     headers:{
       Authorization:`Bearer ${localStorage.getItem("token")}`
     }
   });
 
   const data = await res.json();
-  setUsers(data);
+
+  if (res.ok) setUsers(data);
+  else setUsers([]);
 
 } catch(err) {
   console.error("Failed to fetch users",err);
@@ -203,6 +210,17 @@ return(
       onChange={(e)=>setSearch(e.target.value)}
       style={searchInput}
     />
+    <div style={{marginTop:12, display:"flex", gap:8}}>
+      <button
+        onClick={()=>{ setShowPending(false); fetchUsers(); }}
+        style={{padding:"6px 10px", background: showPending ? "#e5e7eb" : "#4f46e5", color: showPending ? "#111827" : "white", border:"none", borderRadius:6}}
+      >All Users</button>
+
+      <button
+        onClick={()=>{ setShowPending(true); fetchUsers(); }}
+        style={{padding:"6px 10px", background: showPending ? "#4f46e5" : "#e5e7eb", color: showPending ? "white" : "#111827", border:"none", borderRadius:6}}
+      >Pending Registrations</button>
+    </div>
     {/* ================= DEPARTMENT CARDS ================= */}
 
 <div style={deptGrid}>
@@ -301,12 +319,62 @@ onClick={()=>setSelectedDept(null)}
 
            <td style={{...td,textAlign:"center"}}>
 
-                <HoverButton
-                  style={viewBtn}
-                  onClick={()=>setSelectedUser(user)}
-                >
-                  View Dashboard
-                </HoverButton>
+                {showPending && !user.isApproved ? (
+                  <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+                    <button
+                      style={approveBtn}
+                      onClick={async ()=>{
+                        try{
+                          const res = await fetch(`${API_BASE}/admin/approve-faculty/${user._id}`,{
+                            method: "PUT",
+                            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                          });
+                          if(res.ok){
+                            alert("Approved");
+                            fetchUsers();
+                          }else{
+                            const d = await res.json();
+                            alert(d.message || "Approval failed");
+                          }
+                        }catch(err){
+                          console.error(err);
+                          alert("Server error");
+                        }
+                      }}
+                    >Approve</button>
+
+                    <button
+                      style={discussionBtn}
+                      onClick={async ()=>{
+                        const confirmReject = window.confirm("Reject and remove this registration?");
+                        if(!confirmReject) return;
+                        try{
+                          const res = await fetch(`${API_BASE}/admin/delete-user/${user._id}`,{
+                            method: "DELETE",
+                            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                          });
+                          if(res.ok){
+                            alert("Removed");
+                            fetchUsers();
+                          }else{
+                            const d = await res.json();
+                            alert(d.message || "Remove failed");
+                          }
+                        }catch(err){
+                          console.error(err);
+                          alert("Server error");
+                        }
+                      }}
+                    >Remove</button>
+                  </div>
+                ) : (
+                  <HoverButton
+                    style={viewBtn}
+                    onClick={()=>setSelectedUser(user)}
+                  >
+                    View Dashboard
+                  </HoverButton>
+                )}
 
               </td>
               <td style={{...td,textAlign:"center"}}>
@@ -551,4 +619,26 @@ padding:15,
 borderRadius:8,
 textAlign:"center",
 fontWeight:600
+};
+
+const approveBtn = {
+  padding:"7px 12px",
+  backgroundColor:"#10b981",
+  color:"white",
+  border:"none",
+  borderRadius:8,
+  cursor:"pointer",
+  fontSize:13,
+  fontWeight:500
+};
+
+const discussionBtn = {
+  padding:"7px 12px",
+  backgroundColor:"#f59e0b",
+  color:"white",
+  border:"none",
+  borderRadius:8,
+  cursor:"pointer",
+  fontSize:13,
+  fontWeight:500
 };

@@ -12,11 +12,20 @@ const Upload = require("../models/Upload");
 exports.getPendingFaculty = async (req, res) => {
   try {
 
-    if (req.user.role !== "HOD") {
-      return res.status(403).json({ message: "Only HOD can view pending faculty" });
+    // Allow HODs to view pending faculty for their department
+    // and allow ADMIN to view all pending faculty across departments
+    if (!["HOD", "ADMIN"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
-    const faculty = await Faculty.find({ isApproved: false });
+    const query = { isApproved: false };
+
+    // If HOD, scope to their department
+    if (req.user.role === "HOD") {
+      query.department = req.user.department;
+    }
+
+    const faculty = await Faculty.find(query);
 
     res.status(200).json(faculty);
 
@@ -33,8 +42,10 @@ exports.getPendingFaculty = async (req, res) => {
 exports.approveFaculty = async (req, res) => {
   try {
 
-    if (req.user.role !== "HOD") {
-      return res.status(403).json({ message: "Only HOD can approve faculty" });
+    // Allow HODs to approve faculty from their department
+    // and allow ADMIN to approve any faculty
+    if (!["HOD", "ADMIN"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     const { id } = req.params;
@@ -43,26 +54,29 @@ exports.approveFaculty = async (req, res) => {
       return res.status(400).json({ message: "Invalid Faculty ID" });
     }
 
-    const faculty = await Faculty.findByIdAndUpdate(
-      id,
-      {
-        isApproved: true,
-        status: "APPROVED"
-      },
-      { new: true }
-    );
+    const faculty = await Faculty.findById(id);
 
     if (!faculty) {
       return res.status(404).json({ message: "Faculty not found" });
     }
+
+    // If HOD, ensure same department
+    if (req.user.role === "HOD" && faculty.department !== req.user.department) {
+      return res.status(403).json({ message: "You cannot approve faculty from another department" });
+    }
+
+    faculty.status = "APPROVED";
+    faculty.isApproved = true;
+
+    await faculty.save();
 
     if (faculty.employeeId) {
       createUserFolder("faculty", faculty.employeeId);
     }
 
     await Notification.create({
-      message: `HOD approved Faculty ${faculty.name}`,
-      role: "HOD",
+      message: `${req.user.role === "ADMIN" ? "Admin" : req.user.name} approved Faculty ${faculty.name}`,
+      role: req.user.role === "ADMIN" ? "ADMIN" : "HOD",
     });
 
     res.status(200).json({

@@ -13,6 +13,11 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
+/* Offset content so fixed header doesn't overlap */
+body {
+  padding-top: var(--header-height);
+}
+
 :root{
   --bg:#0f172a;
   --muted:#94a3b8;
@@ -22,6 +27,7 @@ html, body {
   --glass-border: rgba(255,255,255,0.18);
   --glass-radius: 16px;
   --max-width: 1200px;
+  --header-height: 100px;
 }
 
 /* Utility container */
@@ -172,8 +178,18 @@ html, body {
 .table-scroll{ width:100%; overflow:auto; }
 .responsive-table{ width:100%; border-collapse:collapse; min-width:640px; }
 
+/* Improve wrapping for long text to avoid overlap */
+.break-word, .card, .glass-card, .container, .responsive-table td, .responsive-table th {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Ensure images scale properly */
+img{ max-width:100%; height:auto; display:block; }
+
 /* Small screens */
 @media (max-width: 900px){
+  :root{ --header-height: 80px; }
   .header{ height:80px; padding:0 20px; }
   .animated-title{ font-size:28px; }
   .header-btn{ padding:10px 14px; }
@@ -183,6 +199,7 @@ html, body {
 }
 
 @media (max-width: 520px){
+  :root{ --header-height: 70px; }
   .header{ height:70px; }
   .animated-title{ font-size:20px; }
   .header-buttons{ gap:8px; }
@@ -239,6 +256,28 @@ html, body {
   .animated-title{ font-size:56px; }
   .glass-card{ max-width: 900px; padding:48px; }
   .container{ padding: 0 32px; }
+}
+
+/* Faculty dashboard specific responsive tweaks */
+.faculty-layout{ display:flex; gap:18px; align-items:flex-start; }
+.faculty-content{ flex:1; padding:40px; }
+.card-grid{ display:flex; gap:20px; flex-wrap:wrap; }
+.category-card{ flex:0 1 220px; max-width:300px; min-width:150px; height:120px; }
+.summary-card{ flex:0 1 200px; max-width:260px; }
+
+@media (max-width: 900px){
+  .faculty-layout{ flex-direction:column; }
+  .faculty-content{ padding:20px; }
+  .category-card{ min-width: 45%; height: auto; }
+  .summary-card{ min-width: 48%; }
+}
+
+@media (max-width: 520px){
+  .faculty-content{ padding:14px; }
+  .category-card{ min-width: 100%; }
+  .summary-card{ min-width: 100%; }
+  .dashboard-header{ flex-direction:column; gap:12px; align-items:flex-start; }
+  .summary-row{ flex-direction:column; gap:12px; }
 }
 
 
