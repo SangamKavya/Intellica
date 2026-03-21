@@ -13,7 +13,7 @@ const {
   getFacultyProfile
 } = require("../controllers/authController");
 
-const User = require("../models/user");
+const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 const profileUpload = require("../middleware/profileUpload");
 

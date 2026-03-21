@@ -21,7 +21,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 =============================== */
 
 router.get("/pending-faculty", authMiddleware, getPendingFaculty);
-router.put("/approve/faculty/:id", authMiddleware, approveFaculty);
+router.put("/approve-faculty/:id", authMiddleware, approveFaculty);
 
 /* ===============================
    HOD MANAGEMENT ROUTES

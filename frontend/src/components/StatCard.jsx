@@ -1,8 +1,8 @@
 function StatCard({ title, count }) {
   return (
-    <div className="card" style={{ width: 180, textAlign: "center" }}>
-      <h4>{title}</h4>
-      <h2>{count}</h2>
+    <div className="card stat-card fade-in">
+      <h4 style={{ margin: 0, color: "var(--muted)" }}>{title}</h4>
+      <h2 style={{ margin: 0 }}>{count}</h2>
     </div>
   );
 }

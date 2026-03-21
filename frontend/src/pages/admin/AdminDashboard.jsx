@@ -9,6 +9,7 @@ import ApproveHodUploads from "./sections/ApproveHodUploads";
 import DepartmentAnalytics from "./sections/DepartmentAnalytics";
 import CreditConfig from "./sections/credit-config/CreditConfig";
 import AdminHeader from "./sections/AdminHeader";
+import Sidebar from "../../components/Sidebar";
 
 
 function AdminDashboard({ setPage }) {
@@ -34,55 +35,13 @@ return (
 <div style={{display:"flex"}}>
 
 {/* SIDEBAR */}
-
-<div style={sidebar}>
-
-{/* MENU */}
-
-<div>
-
-{menuItems.map((item)=>(
-
-<div
-key={item.key}
-onClick={()=>setView(item.key)}
-style={{
-...menuItem,
-background:view === item.key ? "rgba(255,255,255,0.4)" : "transparent",
-borderLeft:view === item.key ? "3px solid #4f46e5" : "none",
-fontWeight:view === item.key ? "600" : "normal"
-}}
-onMouseEnter={(e)=>{
-if(view !== item.key){
-e.currentTarget.style.background = "#e5e7eb";
-}
-}}
-onMouseLeave={(e)=>{
-if(view !== item.key){
-e.currentTarget.style.background = "transparent";
-}
-}}
->
-
-{item.label}
-
-</div>
-
-))}
-
-</div>
-
-
-{/* LOGOUT BUTTON */}
-
-<div
-onClick={handleLogout}
-style={logoutBtn}
->
-Logout
-</div>
-
-</div>
+<Sidebar
+  menu={[...menuItems, { key: "logout", label: "Logout" }]}
+  onSelect={(key) => {
+    if (key === "logout") return handleLogout();
+    setView(key);
+  }}
+/>
 
 {/* CONTENT */}
 
