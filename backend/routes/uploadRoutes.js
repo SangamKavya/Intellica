@@ -12,6 +12,7 @@ const normalizeCategory = require("../middleware/normalizeCategory");
 router.post(
 "/create/:category",
 authMiddleware,
+normalizeCategory,
 upload.any(),
 uploadController.createUpload
 );
@@ -105,12 +106,6 @@ router.get(
 "/faculty/:facultyId",
 authMiddleware,
 uploadController.getFacultyUploads
-);
-router.post(
-  "/create",
-  authMiddleware,
-  normalizeCategory,
-  uploadController.createUpload
 );
 
 module.exports = router;

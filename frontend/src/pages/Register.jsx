@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useResponsive } from "../hooks/useResponsive";
+import "../styles/responsiveDashboard.css";
 import collegeImg from "../assets/college_logo.png";
 import API_BASE from "../api";
 
 function Register({ setPage }) {
+  const responsive = useResponsive();
   const [form, setForm] = useState({
     employeeId: "",
     name: "",
@@ -99,15 +102,7 @@ function Register({ setPage }) {
       />
 
       {/* ===== Top Left Back Button ===== */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          padding: "25px 60px",
-          zIndex: 5,
-        }}
-      >
+      <div className="top-left-actions">
         <button
           onClick={() => setPage("login")}
           style={{
@@ -135,15 +130,8 @@ function Register({ setPage }) {
         }}
       />
 
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <div style={glassCard}>
+      <div className="responsive-center">
+        <div className="glass-card responsive-card">
           <h2 style={titleStyle}>Faculty / HOD Registration</h2>
 
           <StyledInput name="employeeId" value={form.employeeId} onChange={handleChange} placeholder="Employee ID" />
@@ -264,7 +252,8 @@ export default Register;
 /* ===== Styles ===== */
 
 const glassCard = {
-  width: "420px",
+  width: "100%",
+  maxWidth: "430px",
   padding: "40px",
   borderRadius: "20px",
   background: "rgba(255,255,255,0.12)",

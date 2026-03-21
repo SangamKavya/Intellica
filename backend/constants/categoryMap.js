@@ -47,7 +47,9 @@ const CATEGORY_MAP = {
 
   researchproject: "researchproject",
 
-  doctoralthesis: "doctoralThesis"
+  doctoralthesis: "doctoralThesis",
+
+  others: "Others",
 
 };
 

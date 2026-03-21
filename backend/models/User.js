@@ -20,19 +20,17 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["ADMIN"],
+      enum: ["ADMIN", "FACULTY", "HOD"],
       default: "ADMIN"
     },
     isApproved: {
       type: Boolean,
       default: true
     },
-
     otp: {
       type: String,
       default: null,
     },
-
     otpExpires: {
       type: Date,
       default: null,
@@ -41,4 +39,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+// ✅ FIXED LINE
+module.exports = mongoose.models.User || mongoose.model("User", userSchema);

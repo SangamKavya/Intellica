@@ -10,7 +10,7 @@ const [users, setUsers] = useState([]);
 const [selectedUser, setSelectedUser] = useState(null);
 const [search,setSearch] = useState("");
 const [selectedDept, setSelectedDept] = useState(null);
-const departments = ["CSE","IT","AIML","ECE","EEE","MECH","CIVIL","DIPLOMA"];
+const departments = ["CIVIL","EEE","MECH","ECE","CSE","IT","AIML","AIDS","DIPLOMA"];
 const departmentUsers = users.filter(
 u => u.department?.toUpperCase() === selectedDept
 );
@@ -291,13 +291,41 @@ onClick={()=>setSelectedDept(null)}
 
       <tbody>
 
-        {filteredUsers.map(user=>(
-          <HoverRow key={user._id}>
+        {[...filteredUsers]
+  .sort((a, b) => {
+    const roleA = (a.role || "").toUpperCase();
+    const roleB = (b.role || "").toUpperCase();
+
+    // HOD comes first
+    if (roleA === "HOD" && roleB !== "HOD") return -1;
+    if (roleB === "HOD" && roleA !== "HOD") return 1;
+
+    return 0;
+  })
+  .map(user => (
+          <HoverRow
+  key={user._id}
+  style={
+    (user.role || "").toUpperCase() === "HOD"
+      ? hodRowStyle
+      : {}
+  }
+>
 
             <td style={td}>{user.employeeId}</td>
             <td style={td}>{user.name}</td>
             <td style={td}>{user.department}</td>
-            <td style={td}>{user.role}</td>
+            <td
+  style={{
+    ...td,
+    color: (user.role || "").toUpperCase() === "HOD" ? "#b45309" : td.color,
+    fontWeight: (user.role || "").toUpperCase() === "HOD" ? "600" : "normal"
+  }}
+>
+  {(user.role || "").toUpperCase() === "HOD"
+    ? "HOD ⭐"
+    : user.role}
+</td>
 
            <td style={{...td,textAlign:"center"}}>
 
@@ -354,13 +382,13 @@ onClick={()=>setSelectedDept(null)}
 
 /* ================= HOVER ROW ================= */
 
-function HoverRow({children}){
-
+function HoverRow({children, style = {}}){
 const [hover,setHover] = useState(false);
 
 return(
 <tr
 style={{
+...style,
 backgroundColor:hover ? "#f1f5f9":"white",
 transition:"background 0.2s ease"
 }}
@@ -551,4 +579,9 @@ padding:15,
 borderRadius:8,
 textAlign:"center",
 fontWeight:600
+};
+const hodRowStyle = {
+  background: "#fef3c7", // light yellow
+  fontWeight: 600,
+  borderLeft: "4px solid #f59e0b"
 };

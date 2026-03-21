@@ -1041,5 +1041,77 @@ doctoralThesis: [
     label: "Number of PhDs Under Guidance",
     type: "number"
   }
-]
+],
+
+/* ================= OTHERS ================= */
+
+Others: [
+
+{
+name: "title",
+label: "Activity Title",
+type: "text",
+required: true
+},
+
+{
+name: "type",
+label: "Activity Type (FDP, Training, etc.)",
+type: "text",
+required: true
+},
+
+{
+name: "description",
+label: "Description",
+type: "textarea"
+},
+
+{
+name: "organizer",
+label: "Organizer / Institution",
+type: "text"
+},
+
+{
+name: "role",
+label: "Role",
+type: "select",
+options: ["Participant","Organizer","Speaker"]
+},
+
+{
+name: "level",
+label: "Level",
+type: "select",
+options: ["International","National","State","Institutional"]
+},
+
+{
+name: "mode",
+label: "Mode",
+type: "select",
+options: ["Offline","Hybrid","Online"]
+},
+
+{
+name: "fromDate",
+label: "From Date",
+type: "date",
+required: true
+},
+
+{
+name: "toDate",
+label: "To Date",
+type: "date"
+},
+
+{
+name: "duration",
+label: "Duration (Days/Hours)",
+type: "number"
+}
+
+],
 };

@@ -90,7 +90,8 @@ const PROFESSIONAL_CATEGORIES = [
 { key: "seminars", label: "Seminars" },
 { key: "webinars", label: "Webinars" },
 { key: "honorsAwards", label: "Honors & Awards" },
-{ key: "certifications", label: "Certifications" }
+{ key: "certifications", label: "Certifications" },
+{ key: "others", label: "Others" },
 ];
 
 /* ================= RND CATEGORIES ================= */

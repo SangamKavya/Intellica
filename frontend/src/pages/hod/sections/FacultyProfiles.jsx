@@ -4,13 +4,16 @@ import { useState, useEffect } from "react";
 import API_BASE from "../../../api";
 import FacultyDashboard from "../../faculty/FacultyDashboard";
 
-function FacultyProfiles({ department = "CSE" }) {
+function FacultyProfiles() {
 
   const [viewFacultyId, setViewFacultyId] = useState(null);
   const [facultyList, setFacultyList] = useState([]);
   const [search, setSearch] = useState("");
 
   const token = localStorage.getItem("token");
+
+  // ✅ GET REAL DEPARTMENT (FIX)
+  const userDept = localStorage.getItem("user_department");
 
   /* ================= FETCH APPROVED FACULTY ================= */
 
@@ -69,7 +72,10 @@ function FacultyProfiles({ department = "CSE" }) {
   /* ================= FILTER BY DEPARTMENT ================= */
 
   const filteredFaculty = facultyList
-    .filter((f) => f.department === department)
+    .filter((f) =>
+      (f.department || "").toLowerCase().trim() ===
+      (userDept || "").toLowerCase().trim()
+    )
     .filter((f) =>
       f.name.toLowerCase().includes(search.toLowerCase()) ||
       f.employeeId.toLowerCase().includes(search.toLowerCase())
@@ -80,8 +86,10 @@ function FacultyProfiles({ department = "CSE" }) {
 
       <div style={headerSection}>
         <h1 style={title}>Faculty Profiles</h1>
+
+        {/* ✅ FIXED TEXT */}
         <p style={subtitle}>
-          Academic contribution summary — {department} Department
+          Academic contribution summary — {userDept} Department
         </p>
 
         {/* ================= SEARCH BAR ================= */}

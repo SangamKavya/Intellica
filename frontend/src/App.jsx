@@ -14,10 +14,13 @@ function App() {
 
   /* ✅ RESTORE SESSION ON REFRESH */
   useEffect(() => {
-    try {
-      const role = localStorage.getItem("role");
-      console.log("🟡 Checking stored role:", role);
+  try {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("user_role");
 
+    console.log("🟡 Checking stored token & role:", token, role);
+
+    if (token && role) {
       if (role === "ADMIN") {
         setPage("admin-dashboard");
       } else if (role === "HOD") {
@@ -25,11 +28,15 @@ function App() {
       } else if (role === "FACULTY") {
         setPage("faculty");
       }
-    } catch (err) {
-      console.error("🔴 Error in useEffect:", err);
-      setError(err.message);
+    } else {
+      setPage("login");
     }
-  }, []);
+
+  } catch (err) {
+    console.error("🔴 Error in useEffect:", err);
+    setError(err.message);
+  }
+}, []);
 
   if (error) {
     return <div style={{ color: "red", fontSize: "20px", padding: "20px" }}>Error: {error}</div>;

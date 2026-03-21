@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useResponsive } from "../hooks/useResponsive";
+import "../styles/responsiveDashboard.css";
 import API_BASE from "../api";
 import collegeImg from "../assets/college_logo.png";
 
 function Login({ setPage, setUserRole }) {
+  const responsive = useResponsive();
   const [employeeId, setEmployeeId] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,7 +80,7 @@ function Login({ setPage, setUserRole }) {
       /* ================= STORE LOGIN DATA ================= */
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
+      localStorage.setItem("user_role", data.role);
       localStorage.setItem("user_name", data.name || "");
       localStorage.setItem("user_department", data.department || "");
       localStorage.setItem("user_designation", data.designation || "");
@@ -129,32 +132,15 @@ function Login({ setPage, setUserRole }) {
       />
 
       {/* ===== Top Right Buttons ===== */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          right: 0,
-          padding: "25px 60px",
-          display: "flex",
-          gap: "15px",
-          zIndex: 5,
-        }}
-      >
+      <div className="top-right-actions">
         <HoverButton onClick={() => setPage("register")}>
           Register
         </HoverButton>
       </div>
 
       {/* ===== Login Card ===== */}
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP} style={glassCard}>
+      <div className="responsive-center">
+        <form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP} className="glass-card responsive-card">
 
           <StyledInput
             type="text"
@@ -403,7 +389,8 @@ export default Login;
 /* ===== Glass Card ===== */
 
 const glassCard = {
-  width: "380px",
+  width: "100%",
+  maxWidth: "430px",
   padding: "40px",
   borderRadius: "20px",
   background: "rgba(255,255,255,0.15)",

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { useResponsive } from "../../../hooks/useResponsive";
+import "../../../styles/responsiveDashboard.css";
 
 export default function AdminHome({ setView }) {
+
+const responsive = useResponsive();
 
 const [stats,setStats] = useState({
 departments:0,
@@ -67,11 +71,24 @@ headers:{ Authorization:`Bearer ${token}` }
 
 const uploadData = await uploadRes.json();
 
-/* ✅ FIXED FACULTY COUNT (removed wrong + depData.length) */
+/* FETCH ALL USERS */
 
-const facultyCount = Array.isArray(depData)
-? depData.reduce((sum,d)=>sum + (d.facultyCount || 0),0)
-: 0;
+const userRes = await fetch(
+  "http://localhost:5000/api/admin/all-users",
+  {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+);
+
+const userData = await userRes.json();
+
+/* ✅ FIXED: COUNT FACULTY + HOD CORRECTLY */
+
+const totalFacultyAndHOD = Array.isArray(userData)
+  ? userData.filter(
+      u => ["FACULTY", "HOD"].includes((u.role || "").toUpperCase())
+    ).length
+  : 0;
 
 /* ✅ SAFER PENDING COUNT */
 
@@ -82,9 +99,9 @@ const pendingCount = Array.isArray(uploadData)
 /* SET DASHBOARD STATS */
 
 setStats({
-departments: Array.isArray(depData) ? depData.length : 0,
-faculties: facultyCount + (Array.isArray(depData) ? depData.length : 0),
-pendingUploads: pendingCount
+  departments: 9,
+  faculties: totalFacultyAndHOD,
+  pendingUploads: pendingCount
 });
 
 }catch(err){
@@ -97,25 +114,25 @@ console.error(err);
 
 fetchStats();
 
-},[token]);   // ✅ FIXED dependency
+},[token]);
 
 /* ================= UI ================= */
 
 return(
 
-<div>
+<div className="dashboard-container">
 
-<h2 style={{fontSize:28,marginBottom:5}}>
+<h2 className="dashboard-title" style={{marginBottom:5}}>
 Welcome, Admin 👋
 </h2>
 
-<p style={{opacity:0.7}}>
+<p style={{opacity:0.7,fontSize:"14px"}}>
 System overview at a glance
 </p>
 
 {/* ================= STATS CARDS ================= */}
 
-<div style={{display:"flex",gap:20,marginTop:30}}>
+<div className="summary-row" style={{marginTop:30}}>
 
 <StatCard
 title="Departments"
@@ -139,13 +156,13 @@ onClick={()=>setView("approve")}
 
 {/* ================= TOP DEPARTMENTS ================= */}
 
-<h3 style={{marginTop:50}}>Top Departments (Credits)</h3>
+<h3 style={{marginTop:40,fontSize:responsive.isMobile ? "18px" : "20px"}}>Top Departments (Credits)</h3>
 
 <div style={{marginTop:15}}>
 
 {topDepartments.map((d,i)=>(
 
-<div key={i} style={deptRow}>
+<div key={i} className="dept-row">
 
 <span>
 {i===0?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}.`} {d.department}
@@ -165,7 +182,7 @@ onClick={()=>setView("approve")}
 
 {/* ================= MOST POPULAR ACTIVITIES ================= */}
 
-<h3 style={{marginTop:40}}>Most Popular Activities</h3>
+<h3 style={{marginTop:40,fontSize:responsive.isMobile ? "18px" : "20px"}}>Most Popular Activities</h3>
 
 <div style={{marginTop:15}}>
 
@@ -175,22 +192,30 @@ const max = Math.max(...activityStats.map(x => x.count),1);
 
 return(
 
-<div key={i} style={activityRow}>
+<div key={i} className="activity-row">
 
-<span style={{width:140,textTransform:"capitalize"}}>
+<span style={{
+  width:responsive.isMobile ? "100px" : "140px",
+  textTransform:"capitalize",
+  fontSize:responsive.isMobile ? "13px" : "14px"
+}}>
 {a.category}
 </span>
 
-<div style={barContainer}>
+<div className="bar-container">
 
 <div
 style={{
 ...barFill,
-width:`${(a.count / max) * 220}px`   // ✅ FIXED scaling
+width:`${(a.count / max) * (responsive.isMobile ? 120 : 220)}px`
 }}
 ></div>
 
 </div>
+
+<span style={{fontSize:"12px",minWidth:"30px"}}>
+{a.count}
+</span>
 
 </div>
 
@@ -215,9 +240,9 @@ const [hover,setHover] = useState(false);
 return(
 
 <div
+className="summary-card"
 style={{
-...cardStyle,
-...(hover?hoverStyle:{})
+...(hover?{background:"#f0f9ff"}:{})
 }}
 onClick={onClick}
 onMouseEnter={()=>setHover(true)}
@@ -228,7 +253,7 @@ onMouseLeave={()=>setHover(false)}
 {title}
 </p>
 
-<h2 style={{fontSize:28,marginTop:10}}>
+<h2 style={{fontSize:24,marginTop:10}}>
 {value}
 </h2>
 
@@ -239,43 +264,6 @@ onMouseLeave={()=>setHover(false)}
 }
 
 /* ================= STYLES ================= */
-
-const cardStyle={
-padding:20,
-borderRadius:15,
-minWidth:220,
-cursor:"pointer",
-transition:"all 0.3s ease",
-background:"#ffffff",
-boxShadow:"0 4px 15px rgba(0,0,0,0.1)"
-};
-
-const hoverStyle={
-transform:"translateY(-6px)",
-boxShadow:"0 10px 25px rgba(37,99,235,0.4)"
-};
-
-const deptRow={
-display:"flex",
-alignItems:"center",
-gap:10,
-padding:"8px 0",
-fontWeight:500
-};
-
-const activityRow={
-display:"flex",
-alignItems:"center",
-gap:10,
-marginBottom:10
-};
-
-const barContainer={
-width:220,
-height:10,
-background:"#e5e7eb",
-borderRadius:6
-};
 
 const barFill={
 height:"100%",

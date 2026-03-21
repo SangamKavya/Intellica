@@ -158,30 +158,35 @@ exports.discussionFaculty = async (req, res) => {
    GET APPROVED FACULTY FOR HOD DEPARTMENT
 ===================================================== */
 exports.getApprovedFaculty = async (req, res) => {
-
   try {
+
+    console.log("HOD USER:", req.user);
 
     if (req.user.role !== "HOD") {
       return res.status(403).json({ message: "Access denied" });
     }
 
     const faculty = await Faculty.find({
-      department: req.user.department,
       status: "APPROVED"
-    }).select("name employeeId email department");
-
-    res.json(faculty);
-
-  } catch (error) {
-
-    console.error("GET APPROVED FACULTY ERROR:", error);
-
-    res.status(500).json({
-      message: "Server error"
     });
 
-  }
+    const hodDept = (req.user.department || "").toLowerCase().trim();
 
+    const filtered = faculty.filter(f => {
+      const facultyDept = (f.department || "").toLowerCase().trim();
+
+      return facultyDept.includes(hodDept) || hodDept.includes(facultyDept);
+    });
+
+    console.log("HOD DEPT:", req.user.department);
+    console.log("FACULTY COUNT:", filtered.length);
+
+    res.json(filtered);
+
+  } catch (error) {
+    console.error("GET APPROVED FACULTY ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 const Upload = require("../models/Upload");
 

@@ -45,6 +45,7 @@ const uploadSchema = new mongoose.Schema(
     type: Number,
     default: 0
   },
+  
 
   /* workflow status */
 

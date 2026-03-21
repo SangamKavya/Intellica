@@ -40,7 +40,11 @@ const header = {
   alignItems: "center",
   justifyContent: "space-between",
   color: "white",
-  position: "relative",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 100,
 };
 
 const welcomeText = {

@@ -1,7 +1,10 @@
 import { useMemo, useState, useRef } from "react";
+import { useResponsive } from "../../../hooks/useResponsive";
+import "../../../styles/responsiveDashboard.css";
 
 function DepartmentDashboard({ uploads }) {
 
+const responsive = useResponsive();
 const [selectedCategory,setSelectedCategory] = useState(null);
 
 /* ================= FILTER STATES ================= */
@@ -46,6 +49,7 @@ webinar:byCategory("webinar"),
 guestlecture:byCategory("guestlecture"),
 honorsawards:byCategory("honorsawards"),
 certification:byCategory("certification"),
+others: byCategory("others"),
 researchpolicy:byCategory("researchpolicy"),
 membership:byCategory("membership"),
 ipr:byCategory("ipr"),
@@ -189,13 +193,13 @@ a.click();
 
 return (
 
-<div>
+<div className="dashboard-container">
 
-<h2>Department Academic Performance</h2>
+<h2 className="dashboard-title">Department Academic Performance</h2>
 
 {/* ================= SUMMARY ================= */}
 
-<div style={summaryRow}>
+<div className="summary-row">
 
 <SummaryCard title="Total Department Credits" value={totalCredits} />
 
@@ -211,7 +215,7 @@ onClick={()=>openCategory("all")}
 
 {/* ================= CATEGORY CARDS ================= */}
 
-<div style={cardGrid}>
+<div className="category-grid">
 
 <CategoryCard title="Publications" value={categoryCredits.publication} onClick={()=>openCategory("publication")} />
 <CategoryCard title="Conferences" value={categoryCredits.conference} onClick={()=>openCategory("conference")} />
@@ -232,39 +236,43 @@ onClick={()=>openCategory("all")}
 <CategoryCard title="Projects" value={categoryCredits.researchprojects} onClick={()=>openCategory("researchprojects")} />
 <CategoryCard title="Doctoral Thesis" value={categoryCredits.doctoralthesis} onClick={()=>openCategory("doctoralthesis")} />
 <CategoryCard title="MOUs" value={categoryCredits.mous} onClick={()=>openCategory("mous")} />
-
+<CategoryCard 
+  title="Others" 
+  value={categoryCredits.others} 
+  onClick={() => openCategory("others")} 
+/>
 </div>
 
 {/* ================= TABLE ================= */}
 
 {selectedCategory && (
 
-<div ref={tableRef} style={{marginTop:50}}>
+<div ref={tableRef} className="table-section">
 
 <h3>{selectedCategory.toUpperCase()} Activities</h3>
 
 {/* ================= FILTER BAR ================= */}
 
-<div style={filterBar}>
+<div className="filter-bar">
 
 <input
 placeholder="Search Name"
 value={searchName}
 onChange={e=>setSearchName(e.target.value)}
-style={filterInput}
+className="filter-input"
 />
 
 <input
 placeholder="Employee ID"
 value={searchEmpId}
 onChange={e=>setSearchEmpId(e.target.value)}
-style={filterInput}
+className="filter-input"
 />
 
 <select
 value={yearFilter}
 onChange={e=>setYearFilter(e.target.value)}
-style={filterInput}
+className="filter-select"
 >
 <option value="">All Years</option>
 {years.map(y=>(
@@ -275,7 +283,7 @@ style={filterInput}
 <select
 value={categoryFilter}
 onChange={e=>setCategoryFilter(e.target.value)}
-style={filterInput}
+className="filter-select"
 >
 <option value="">All Categories</option>
 {Object.keys(categoryCredits).map(cat=>(
@@ -283,22 +291,61 @@ style={filterInput}
 ))}
 </select>
 
-<button style={downloadBtn} onClick={()=>downloadCSV(categoryUploads)}>
+<button 
+className="download-btn" 
+onClick={()=>downloadCSV(categoryUploads)}
+disabled={categoryUploads.length === 0}
+>
 Download CSV
 </button>
 
 </div>
 
-<table style={table}>
+{/* ================= TABLE/CARD VIEW ================= */}
+
+{categoryUploads.length === 0 ? (
+<div className="no-data-message">
+No activities found
+</div>
+) : responsive.isMobile ? (
+<div className="table-card-list">
+{categoryUploads.map(item=>(
+<div key={item._id} className="table-card">
+<div className="table-card-row">
+<span className="table-card-label">Emp ID</span>
+<span className="table-card-value">{item.faculty?.employeeId || item.employeeId || "-"}</span>
+</div>
+<div className="table-card-row">
+<span className="table-card-label">Name</span>
+<span className="table-card-value">{item.faculty?.name || item.name || "-"}</span>
+</div>
+<div className="table-card-row">
+<span className="table-card-label">Category</span>
+<span className="table-card-value">{item.category}</span>
+</div>
+<div className="table-card-row">
+<span className="table-card-label">Title</span>
+<span className="table-card-value">{getTitle(item)}</span>
+</div>
+<div className="table-card-row">
+<span className="table-card-label">Credits</span>
+<span className="table-card-value" style={{color: "#2563eb", fontWeight: "bold"}}>{item.credits}</span>
+</div>
+</div>
+))}
+</div>
+) : (
+<div className="table-wrapper">
+<table className="responsive-table">
 
 <thead>
 
 <tr>
-<th style={th}>Employee ID</th>
-<th style={th}>Name</th>
-<th style={th}>Category</th>
-<th style={th}>Title</th>
-<th style={th}>Credits</th>
+<th>Employee ID</th>
+<th>Name</th>
+<th>Category</th>
+<th>Title</th>
+<th>Credits</th>
 </tr>
 
 </thead>
@@ -308,11 +355,11 @@ Download CSV
 {categoryUploads.map(item=>(
 
 <tr key={item._id}>
-<td style={td}>{item.faculty?.employeeId || item.employeeId || "-"}</td>
-<td style={td}>{item.faculty?.name || item.name || "-"}</td>
-<td style={td}>{item.category}</td>
-<td style={td}>{getTitle(item)}</td>
-<td style={td}>{item.credits}</td>
+<td>{item.faculty?.employeeId || item.employeeId || "-"}</td>
+<td>{item.faculty?.name || item.name || "-"}</td>
+<td>{item.category}</td>
+<td>{getTitle(item)}</td>
+<td>{item.credits}</td>
 </tr>
 
 ))}
@@ -320,6 +367,8 @@ Download CSV
 </tbody>
 
 </table>
+</div>
+)}
 
 </div>
 
@@ -331,7 +380,7 @@ Download CSV
 
 }
 
-export default DepartmentDashboard;
+
 
 /* ================= COMPONENTS ================= */
 
@@ -342,10 +391,9 @@ const [hover,setHover] = useState(false);
 return(
 
 <div
+className={hover ? "summary-card" : "summary-card"}
 style={{
-...summaryCard,
-cursor:"pointer",
-...(hover?summaryHover:{})
+...(hover?{background:"#f0f9ff"}:{})
 }}
 onMouseEnter={()=>setHover(true)}
 onMouseLeave={()=>setHover(false)}
@@ -368,9 +416,9 @@ const [hover,setHover] = useState(false);
 return(
 
 <div
+className="category-card"
 style={{
-...categoryCard,
-...(hover?categoryHover:{})
+...(hover?{background:"#f0f9ff"}:{})
 }}
 onMouseEnter={()=>setHover(true)}
 onMouseLeave={()=>setHover(false)}
@@ -387,89 +435,5 @@ onClick={onClick}
 
 }
 
-/* ================= STYLES ================= */
 
-const summaryRow={
-display:"flex",
-gap:20,
-marginTop:20
-};
-
-const summaryCard={
-width:220,
-height:110,
-background:"white",
-borderRadius:12,
-display:"flex",
-flexDirection:"column",
-justifyContent:"center",
-alignItems:"center",
-boxShadow:"0 4px 12px rgba(0,0,0,0.08)"
-};
-
-const cardGrid={
-display:"flex",
-flexWrap:"wrap",
-gap:20,
-marginTop:30
-};
-
-const categoryCard={
-width:220,
-height:120,
-background:"white",
-borderRadius:12,
-padding:20,
-cursor:"pointer",
-transition:"all 0.2s ease",
-boxShadow:"0 4px 12px rgba(0,0,0,0.08)"
-};
-
-const categoryHover={
-transform:"translateY(-6px)",
-boxShadow:"0 8px 20px rgba(0,0,0,0.15)"
-};
-
-const filterBar={
-display:"flex",
-gap:12,
-marginBottom:15,
-flexWrap:"wrap"
-};
-
-const filterInput={
-padding:8,
-borderRadius:6,
-border:"1px solid #ccc"
-};
-
-const downloadBtn={
-background:"#2563eb",
-color:"white",
-border:"none",
-padding:"8px 14px",
-borderRadius:6,
-cursor:"pointer"
-};
-
-const table={
-width:"100%",
-borderCollapse:"collapse",
-marginTop:20
-};
-
-const th={
-border:"1px solid #ddd",
-padding:10,
-background:"#f3f4f6"
-};
-
-const td={
-border:"1px solid #ddd",
-padding:10
-};
-
-const summaryHover={
-transform:"translateY(-5px)",
-boxShadow:"0 8px 18px rgba(0,0,0,0.15)"
-};
+export default DepartmentDashboard;

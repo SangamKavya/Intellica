@@ -85,5 +85,42 @@ router.get(
   authMiddleware,
   uploadController.getDepartmentUploads
 );
+/* =====================================================
+   UPDATE HOD PROFILE (NEW)
+===================================================== */
 
+const HOD = require("../models/HOD");
+
+router.put(
+  "/update-profile",
+  authMiddleware,
+  async (req, res) => {
+    try {
+
+      const hod = await HOD.findById(req.user.id);
+
+      if (!hod) {
+        return res.status(404).json({ message: "HOD not found" });
+      }
+
+      hod.name = req.body.name || hod.name;
+      hod.email = req.body.email || hod.email;
+      hod.designation = req.body.designation || hod.designation;
+      hod.googleScholar = req.body.googleScholar?.trim() || "";
+      hod.scopusId = req.body.scopusId?.trim() || "";
+      hod.vidwanId = req.body.vidwanId?.trim() || "";
+
+      await hod.save();
+
+      res.json({
+        message: "HOD profile updated successfully",
+        hod
+      });
+
+    } catch (err) {
+      console.error("HOD UPDATE ERROR:", err);
+      res.status(500).json({ message: "Update failed" });
+    }
+  }
+);
 module.exports = router;

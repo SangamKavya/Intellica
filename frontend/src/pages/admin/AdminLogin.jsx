@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useResponsive } from "../../hooks/useResponsive";
+import "../../styles/responsiveDashboard.css";
 import API_BASE from "../../api";
 import collegeImg from "../../assets/college_logo.png";
 
 function AdminLogin({ setPage }) {
 
+  const responsive = useResponsive();
   const [adminId, setAdminId] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);

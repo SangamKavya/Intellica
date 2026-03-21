@@ -93,7 +93,12 @@ const CATEGORY_REGISTRY = {
   doctoralThesis: {
     section: "rnd",
     key: "doctoralThesis"
-  }
+  },
+
+  Others: {
+  section: "professional",
+  key: "others"
+}
 
 };
 

@@ -13,6 +13,7 @@ function ProfessionalDevelopment({ onSelectCategory }) {
     { label: "Webinars", key: "webinars" },
     { label: "Honors & Awards", key: "honors-awards" },
     { label: "Certifications", key: "certifications" },
+    { label: "Others", key: "others" },
   ];
 
   return (

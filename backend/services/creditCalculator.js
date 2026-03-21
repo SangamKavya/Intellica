@@ -5,7 +5,8 @@ async function calculateCredits(upload) {
 
   try {
 
-    const { category, metadata } = upload;
+    const category = (upload.category || "").trim();
+    const metadata = upload.metadata || {};
 
     console.log("========== CREDIT DEBUG ==========");
     console.log("CATEGORY:", category);
@@ -81,7 +82,7 @@ async function calculateCredits(upload) {
 
     /* ================= WORKSHOP ================= */
 
-if (category === "workshop") {
+if (category === "Workshop") {
 
   const type = (metadata?.workshopType || "").toLowerCase();
   const level = (metadata?.level || "").trim();
@@ -248,7 +249,7 @@ if (category === "FDP") {
 
     /* ================= MOU ================= */
 
-    if (category === "mou") {
+    if (category === "MOU") {
 
       const base = rules?.typeCredits?.[metadata?.mouType] || 0;
 
@@ -259,7 +260,7 @@ if (category === "FDP") {
 
     /* ================= RESEARCH PROJECT ================= */
 
-    if (category === "researchproject") {
+    if (category === "ResearchProject") {
 
       const role = rules?.roleCredits?.[metadata?.role] || 0;
 
@@ -271,7 +272,7 @@ if (category === "FDP") {
 
     /* ================= DOCTORAL THESIS ================= */
 
-    if (category === "doctoralThesis") {
+    if (category === "DoctoralThesis") {
 
       const guided =
         Number(metadata?.guidedCount || 0) *
@@ -283,7 +284,21 @@ if (category === "FDP") {
 
       return guided + guiding;
     }
+    /* ================= OTHERS ================= */
 
+if (category === "Others") {
+
+  const days = Number(metadata?.duration || 1);
+
+  const base = rules?.base || 0;
+  const perDay = rules?.perDay || 0;
+
+  console.log("OTHERS BASE:", base);
+  console.log("OTHERS PER DAY:", perDay);
+  console.log("OTHERS DAYS:", days);
+
+  return base + days * perDay;
+}
     return 0;
 
   } catch (error) {

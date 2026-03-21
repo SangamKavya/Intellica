@@ -13,6 +13,7 @@ import Webinars from "../../faculty/categories/Webinars";
 import GuestLectures from "../../faculty/categories/GuestLectures";
 import HonorsAwards from "../../faculty/categories/HonorsAwards";
 import Certifications from "../../faculty/categories/Certifications";
+import Others from "../../faculty/categories/Others";
 
 import Publications from "../../faculty/categories/Publications";
 import ResearchPolicy from "../../faculty/categories/ResearchPolicy";
@@ -37,6 +38,7 @@ webinars: Webinars,
 "guest-lectures": GuestLectures,
 "honors-awards": HonorsAwards,
 certifications: Certifications,
+others: Others,
 
 "rnd-publications": Publications,
 "rnd-policy": ResearchPolicy,
@@ -54,7 +56,9 @@ function HodPersonalDashboard({ uploads = null, hodId = null })  {
 const [view,setView]=useState("dashboard");
 const [localUploads,setLocalUploads] = useState([]);
 const [categoryMode,setCategoryMode]=useState("upload");
-
+const [selectedCategory, setSelectedCategory] = useState("");
+const [selectedYear, setSelectedYear] = useState("");
+const [rankData, setRankData] = useState(null);
 
 const token=localStorage.getItem("token");
 useEffect(()=>{
@@ -83,6 +87,36 @@ setLocalUploads([]);
 
 },[uploads,hodId,token]);
 
+
+
+useEffect(() => {
+
+  const fetchRank = async () => {
+    try {
+
+      if (!hodId) return;
+
+      const res = await fetch(`${API_BASE}/rank/${hodId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+
+      console.log("HOD PERSONAL RANK:", data);
+
+      if (res.ok) {
+        setRankData(data);
+      }
+
+    } catch (err) {
+      console.error("RANK ERROR:", err);
+    }
+  };
+
+  fetchRank();
+
+}, [hodId, token]);
+
 /* STATUS FILTERS */
 
 const approvedUploads = useMemo(()=>localUploads.filter(
@@ -96,7 +130,21 @@ u => u.status === "FACULTY_SUBMITTED" || u.status === "HOD_SUBMITTED"
 const discussionUploads = useMemo(()=>localUploads.filter(
 u => u.status === "HOD_COMMENT" || u.status === "ADMIN_COMMENT"
 ),[localUploads]);
+const availableCategories = useMemo(() => 
+  [...new Set(
+    localUploads.map(u => (u.category || "").toLowerCase())
+  )].filter(Boolean),
+[localUploads]);
 
+const availableYears = useMemo(() => 
+  [...new Set(
+    localUploads
+      .filter(u => u.createdAt)
+      .map(u => new Date(u.createdAt).getFullYear())
+  )]
+  .filter(Boolean)
+  .sort((a, b) => b - a),
+[localUploads]);
 /* CREDITS */
 
 const totalCredits = approvedUploads.reduce((sum,u)=>sum+(u.credits||0),0);
@@ -123,6 +171,7 @@ webinar:byCategory("webinar"),
 guestlecture:byCategory("guestlecture"),
 honorsawards:byCategory("honorsawards"),
 certification:byCategory("certification"),
+others: byCategory("others"),
 researchpolicy:byCategory("researchpolicy"),
 membership:byCategory("membership"),
 ipr:byCategory("ipr"),
@@ -142,31 +191,45 @@ setView(key);
 
 /* DOWNLOAD */
 
-const handleDownload = async(type)=>{
+const handleDownload = async () => {
+  try {
+    let url = `${API_BASE}/reports/faculty-excel`;
 
-let url = `${API_BASE}/reports/faculty-excel`;
+    const params = new URLSearchParams();
 
-if(type==="category"){
-const category=prompt("Enter category name");
-if(!category) return;
-url+=`?category=${category}`;
-}
+    if (selectedCategory) {
+      params.append("category", selectedCategory);
+    }
 
-if(type==="year"){
-const year=prompt("Enter year");
-if(!year) return;
-url+=`?year=${year}`;
-}
+    if (selectedYear) {
+      params.append("year", selectedYear);
+    }
 
-const res=await fetch(url,{headers:{Authorization:`Bearer ${token}`}});
+    if ([...params].length > 0) {
+      url += `?${params.toString()}`;
+    }
 
-const blob=await res.blob();
+    console.log("DOWNLOAD URL:", url);
 
-const link=document.createElement("a");
-link.href=window.URL.createObjectURL(blob);
-link.download="hod_activities.xlsx";
-link.click();
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
+    if (!res.ok) {
+      console.error("Download failed:", res.status);
+      return;
+    }
+
+    const blob = await res.blob();
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "hod_activities.xlsx";
+    link.click();
+
+  } catch (err) {
+    console.error("DOWNLOAD ERROR:", err);
+  }
 };
 
 /* ACTIVE CATEGORY */
@@ -189,10 +252,35 @@ return(
 
 <div style={{display:"flex",gap:10}}>
 
-<button style={downloadBtn} onClick={()=>handleDownload("all")}>Download All</button>
-<button style={downloadBtn} onClick={()=>handleDownload("category")}>Category</button>
-<button style={downloadBtn} onClick={()=>handleDownload("year")}>Year</button>
+<button style={downloadBtn} onClick={handleDownload}>
+  Download
+</button>
 
+<select
+  style={downloadSelect}
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="">Category</option>
+  {availableCategories.map(cat => (
+    <option key={cat} value={cat}>
+      {cat.toUpperCase()}
+    </option>
+  ))}
+</select>
+
+<select
+  style={downloadSelect}
+  value={selectedYear}
+  onChange={(e) => setSelectedYear(e.target.value)}
+>
+  <option value="">Year</option>
+  {availableYears.map(year => (
+    <option key={year} value={year}>
+      {year}
+    </option>
+  ))}
+</select>
 </div>
 
 </div>
@@ -200,8 +288,24 @@ return(
 <div style={{display:"flex",gap:20,marginTop:30}}>
 
 <SummaryCard title="Total Credits" value={totalCredits}/>
-<SummaryCard title="Your Rank" value="—"/>
 
+<SummaryCard 
+  title="Dept Rank"
+  value={
+  rankData
+    ? `${rankData.departmentRank} / ${rankData.departmentTotal}`
+    : "—"
+}
+/>
+
+<SummaryCard 
+  title="College Rank"
+  value={
+  rankData
+    ? `${rankData.departmentRank} / ${rankData.departmentTotal}`
+    : "—"
+}
+/>
 </div>
 
 <div style={cardGrid}>
@@ -225,6 +329,7 @@ return(
 <CategoryCard title="Projects" value={categoryCredits.researchProjects} onClick={()=>openCategory("rnd-projects")}/>
 <CategoryCard title="Doctoral Thesis" value={categoryCredits.doctoralThesis} onClick={()=>openCategory("rnd-doctoral-thesis")}/>
 <CategoryCard title="MOUs" value={categoryCredits.mou} onClick={()=>openCategory("rnd-mous")}/>
+<CategoryCard title="Others" value={categoryCredits.others || 0} onClick={()=>openCategory("others")}/>
 </div>
 
 </>
@@ -290,3 +395,11 @@ const categoryCard={width:220,height:120,background:"white",borderRadius:12,padd
 const dashboardHeader={display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10};
 
 const downloadBtn={padding:"8px 14px",background:"#2563eb",color:"white",border:"none",borderRadius:6,cursor:"pointer",fontSize:13,fontWeight:500};
+const downloadSelect = {
+  padding: "8px 12px",
+  borderRadius: 6,
+  border: "1px solid #cbd5e1",
+  cursor: "pointer",
+  fontSize: 13,
+  fontWeight: 500
+};

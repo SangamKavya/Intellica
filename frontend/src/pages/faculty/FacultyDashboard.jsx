@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useResponsive } from "../../hooks/useResponsive";
+import "../../styles/responsiveDashboard.css";
 
 import FacultyHeader from "./FacultyHeader";
 import ProfessionalDevelopment from "./ProfessionalDevelopment";
@@ -14,6 +16,7 @@ import Webinars from "./categories/Webinars";
 import GuestLectures from "./categories/GuestLectures";
 import HonorsAwards from "./categories/HonorsAwards";
 import Certifications from "./categories/Certifications";
+import Others from "./categories/Others";
 
 import Publications from "./categories/Publications";
 import ResearchPolicy from "./categories/ResearchPolicy";
@@ -26,13 +29,33 @@ import Consultancy from "./categories/Consultancy";
 
 import ProfileInfo from "../common/ProfileInfo";
 import API_BASE from "../../api";
+import CreditConfigViewer from "../admin/sections/credit-config/common/CreditConfigViewer";
 
 function FacultyDashboard({ setPage, readOnly = false, facultyId = null })  {
+const responsive = useResponsive();
 const isHODView = readOnly && facultyId;
 const [view,setView]=useState("dashboard");
 const [uploads,setUploads]=useState([]);
+const availableCategories = useMemo(() => 
+  [...new Set(
+    uploads.map(u => (u.category || "").toLowerCase())
+  )].filter(Boolean),
+[uploads]);
+
+const availableYears = useMemo(() => 
+  [...new Set(
+    uploads
+      .filter(u => u.createdAt) // ✅ safety
+      .map(u => new Date(u.createdAt).getFullYear())
+  )]
+  .filter(Boolean)
+  .sort((a, b) => b - a),
+[uploads]);
 const [user,setUser]=useState(null);
 const [categoryMode,setCategoryMode]=useState("upload");
+const [selectedCategory, setSelectedCategory] = useState("");
+const [selectedYear, setSelectedYear] = useState("");
+const [rankData, setRankData] = useState(null);
 
 const fileInputRef=useRef(null);
 const token=localStorage.getItem("token");
@@ -66,6 +89,34 @@ headers:{Authorization:`Bearer ${token}`}
 
 },[token, facultyId]);
 
+useEffect(() => {
+
+  const fetchRank = async () => {
+    try {
+
+      const url = facultyId
+  ? `${API_BASE}/rank/${facultyId}`
+  : `${API_BASE}/rank`;
+
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setRankData(data);
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchRank();
+
+}, [token, facultyId]);
+
 /* FETCH UPLOADS */
 
 useEffect(()=>{
@@ -85,7 +136,7 @@ setUploads([]);
 return;
 }
 
-const data = await res.json();
+const data = await res.json();   // ✅ THIS LINE IS MISSING IN YOUR CODE
 
 if(Array.isArray(data)){
 setUploads(data);
@@ -100,7 +151,6 @@ setUploads([]);
 });
 
 },[token, facultyId]);
-
 
 /* PROFILE IMAGE */
 
@@ -168,6 +218,7 @@ webinar:byCategory("webinar"),
 guestlecture:byCategory("guestlecture"),
 honorsawards:byCategory("honorsawards"),
 certification:byCategory("certification"),
+others: byCategory("others"),
 researchpolicy:byCategory("researchpolicy"),
 membership:byCategory("membership"),
 ipr:byCategory("ipr"),
@@ -187,33 +238,50 @@ setView(key);
 };
 /* DOWNLOAD EXCEL */
 
-const handleDownload = async (type) => {
+const handleDownload = async () => {
+  try {
+    let url = `${API_BASE}/reports/faculty-excel`;
 
-let url = `${API_BASE}/reports/faculty-excel`;
+    const params = new URLSearchParams();
 
-if(type==="category"){
-const category = prompt("Enter category name (example: publication)");
-if(!category) return;
-url += `?category=${category}`;
-}
+    if (selectedCategory) {
+      params.append("category", selectedCategory);
+    }
 
-if(type==="year"){
-const year = prompt("Enter year (example: 2026)");
-if(!year) return;
-url += `?year=${year}`;
-}
+    if (selectedYear) {
+      params.append("year", selectedYear);
+    }
 
-const res = await fetch(url,{
-headers:{Authorization:`Bearer ${token}`}
-});
+    if ([...params].length > 0) {
+      url += `?${params.toString()}`;
+    }
 
-const blob = await res.blob();
+    console.log("DOWNLOAD URL:", url); // 🔍 debug this
 
-const link = document.createElement("a");
-link.href = window.URL.createObjectURL(blob);
-link.download = "faculty_activities.xlsx";
-link.click();
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
+    if (!res.ok) {
+      console.error("Download failed:", res.status);
+      return;
+    }
+
+    const blob = await res.blob();
+
+    if (blob.size === 0) {
+      console.error("Empty file returned ❌");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "faculty_activities.xlsx";
+    link.click();
+
+  } catch (err) {
+    console.error("DOWNLOAD ERROR:", err);
+  }
 };
 
 
@@ -256,7 +324,7 @@ Click to change image
 </div>
 )}
 
-<ProfileInfo user={user}/>
+<ProfileInfo user={user} readOnly={readOnly}/>
 
 </div>
 
@@ -337,17 +405,39 @@ Logout
 
 <div style={{display:"flex",gap:10}}>
 
-<button style={downloadBtn} onClick={()=>handleDownload("all")}>
+<button style={downloadBtn} onClick={handleDownload}>
 Download All
 </button>
 
-<button style={downloadBtn} onClick={()=>handleDownload("category")}>
-Category
-</button>
+<select
+  style={downloadSelect}
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="">Category</option>
 
-<button style={downloadBtn} onClick={()=>handleDownload("year")}>
-Year
-</button>
+  {availableCategories.map(cat => (
+    <option key={cat} value={cat}>
+      {cat.toUpperCase()}
+    </option>
+  ))}
+
+</select>
+
+<select
+  style={downloadSelect}
+  value={selectedYear}
+  onChange={(e) => setSelectedYear(e.target.value)}
+>
+  <option value="">Year</option>
+
+  {availableYears.map(year => (
+    <option key={year} value={year}>
+      {year}
+    </option>
+  ))}
+
+</select>
 
 </div>
 
@@ -355,7 +445,24 @@ Year
 
 <div style={{display:"flex",gap:20,marginTop:30}}>
 <SummaryCard title="Total Credits" value={totalCredits}/>
-<SummaryCard title="Your Rank" value="—"/>
+
+<SummaryCard 
+  title="Department Rank"
+  value={
+    rankData
+      ? `${rankData.departmentRank} / ${rankData.departmentTotal}`
+      : "—"
+  }
+/>
+
+<SummaryCard 
+  title="College Rank"
+  value={
+    rankData
+      ? `${rankData.collegeRank} / ${rankData.collegeTotal}`
+      : "—"
+  }
+/>
 </div>
 
 <div style={cardGrid}>
@@ -378,7 +485,7 @@ Year
 <CategoryCard title="Incubation" value={categoryCredits.incubation} onClick={()=>openCategory("rnd-incubation")}/>
 <CategoryCard title="Projects" value={categoryCredits.researchProjects} onClick={()=>openCategory("rnd-projects")}/>
 <CategoryCard title="Doctoral Thesis" value={categoryCredits.doctoralThesis} onClick={()=>openCategory("rnd-doctoral-thesis")}/>
-
+<CategoryCard title="Others" value={categoryCredits.others || 0} onClick={()=>openCategory("others")}/>
 </div>
 
 </>
@@ -411,11 +518,16 @@ Year
 
 {view==="certifications"&&<Certifications mode={categoryMode} facultyId={facultyId} onBack={()=>setView("pdc")}/>}
 
-
+{view==="others"&&<Others mode={categoryMode} facultyId={facultyId} onBack={()=>setView("pdc")}/>}
 
 {/* R&D */}
 
-{view==="rnd"&&( <RnD onSelectCategory={setView}/> )}
+{view==="rnd"&&(
+  <RnD 
+    onSelectCategory={setView} 
+    role="FACULTY" 
+  />
+)}
 
 {view==="rnd-publications"&&<Publications mode={categoryMode} facultyId={facultyId} onBack={()=>setView("rnd")}/>}
 
@@ -432,7 +544,7 @@ Year
 {view==="rnd-incubation"&&<Incubation mode={categoryMode} facultyId={facultyId} onBack={()=>setView("rnd")}/>}
 
 {view==="rnd-consultancy"&&<Consultancy mode={categoryMode} facultyId={facultyId} onBack={()=>setView("rnd")}/>}
-
+{view==="credit-config" && <CreditConfigViewer />}
 </div>
 
 </div>
@@ -492,7 +604,7 @@ onMouseLeave={()=>setHover(false)}
 
 /* STYLES */
 
-const wrapper={minHeight:"100vh",background:"linear-gradient(180deg,#c7d2fe 0%,#e9d5ff 100%)"};
+const wrapper={minHeight:"100vh",background:"linear-gradient(180deg,#c7d2fe 0%,#e9d5ff 100%)",paddingTop:"100px"};
 
 const layout={display:"flex"};
 
@@ -564,7 +676,8 @@ fontWeight:500
 const menuItems=[
 {key:"dashboard",label:"Dashboard"},
 {key:"pdc",label:"Professional Development"},
-{key:"rnd",label:"Research & Development"}
+{key:"rnd",label:"Research & Development"},
+{key:"credit-config",label:"Credit Rules"} 
 ];
 const summaryHover={
 transform:"translateY(-6px)",
@@ -574,4 +687,12 @@ boxShadow:"0 12px 24px rgba(0,0,0,0.15)"
 const categoryHover={
 transform:"translateY(-8px)",
 boxShadow:"0 16px 28px rgba(0,0,0,0.18)"
+};
+const downloadSelect = {
+  padding: "8px 12px",
+  borderRadius: 6,
+  border: "1px solid #cbd5e1",
+  cursor: "pointer",
+  fontSize: 13,
+  fontWeight: 500
 };

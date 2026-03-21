@@ -6,14 +6,10 @@ function AdminHeader() {
     <div style={header}>
 
       <div style={textCenter}>
-  <p style={welcomeText}>
-    Welcome Admin
-  </p>
-
-  <h2 style={subText}>
-    MIC College of Technology
-  </h2>
-</div>
+        <p style={welcomeText}>
+          Welcome, Admin
+        </p>
+      </div>
 
       <div style={logoWrapper}>
         <img src={collegeLogo} alt="College Logo" style={logoStyle} />
@@ -36,18 +32,17 @@ const header = {
   alignItems: "center",
   justifyContent: "space-between",
   color: "white",
-  position: "relative",
-};
-
-const subText = {
-  margin: 0,
-  fontSize: 22,
-  fontWeight: 700,
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 100,
 };
 
 const welcomeText = {
   margin: 0,
-  fontSize: 14,
+  fontSize: 24,
+  fontWeight: 600,
 };
 
 const logoWrapper = {
@@ -66,6 +61,7 @@ const logoStyle = {
   height: 45,
   width: "auto",
 };
+
 const textCenter = {
   position: "absolute",
   left: "50%",

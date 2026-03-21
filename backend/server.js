@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const portfinder = require("portfinder");
 const path = require("path");
 require("dotenv").config();
 
@@ -43,13 +42,11 @@ app.use(express.urlencoded({ extended: true }));
 // Static folder for uploaded files
 app.use("/uploads", express.static("uploads"));
 
-// Serve frontend dist folder
-app.use(express.static(path.join(__dirname, "dist")));
-
 /* =====================================================
-   API ROUTES
+   API ROUTES (IMPORTANT: BEFORE STATIC)
 ===================================================== */
 
+app.use("/api/rank", require("./routes/rankRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/uploads", uploadRoutes);
@@ -57,6 +54,12 @@ app.use("/api/hod", hodRoutes);
 app.use("/api/faculty", facultyRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/credit-config", creditConfigRoutes);
+
+/* =====================================================
+   STATIC FRONTEND (AFTER API)
+===================================================== */
+
+app.use(express.static(path.join(__dirname, "dist")));
 
 /* =====================================================
    HEALTH CHECK
@@ -67,12 +70,21 @@ app.get("/api/health", (req, res) => {
 });
 
 /* =====================================================
-   FRONTEND ROUTING (SPA fallback)
+   SPA FALLBACK (LAST)
 ===================================================== */
 
-// Serve index.html for any route that's not an API or static file
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+/* =====================================================
+   GLOBAL ERROR HANDLER (VERY IMPORTANT)
+===================================================== */
+
+app.use((err, req, res, next) => {
+  console.error("❌ GLOBAL ERROR:", err.message);
+  console.error(err.stack);
+  res.status(500).json({ message: err.message });
 });
 
 /* =====================================================
@@ -84,26 +96,13 @@ const DEFAULT_PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
 
-  console.log("MongoDB Connected");
+  console.log("✅ MongoDB Connected");
 
-  // Find an available port starting from DEFAULT_PORT
-  portfinder.getPort({ port: DEFAULT_PORT }, (err, port) => {
-    if (err) {
-      console.error("Error finding available port:", err);
-      return;
-    }
-
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-      if (port !== DEFAULT_PORT) {
-        console.log(`Note: Using port ${port} instead of ${DEFAULT_PORT} (which was in use)`);
-      }
-    });
+  app.listen(DEFAULT_PORT, () => {
+    console.log(`🔥 Server running on port ${DEFAULT_PORT}`);
   });
 
 })
 .catch((err) => {
-
-  console.error("MongoDB Connection Error:", err);
-
+  console.error("❌ MongoDB Connection Error:", err);
 });

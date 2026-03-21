@@ -162,6 +162,10 @@ honorsAwards: { Award: 20 },
 certifications: {
 Global: { perDay: 2 },
 Others: { perDay: 1 }
+},
+others: {
+  base: 5,
+  perDay: 1
 }
 
 });
@@ -173,7 +177,10 @@ fetch("http://localhost:5000/api/credit-config/professional")
 .then(data => {
 
 if (data?.config && Object.keys(data.config).length > 0) {
-setCredits(data.config);
+setCredits(prev => ({
+  ...prev,
+  ...data.config
+}));
 }
 
 })

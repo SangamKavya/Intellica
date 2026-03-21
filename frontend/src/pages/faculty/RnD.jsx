@@ -1,24 +1,25 @@
 import { useState } from "react";
 
-function RnD({ onSelectCategory }) {
+function RnD({ onSelectCategory, role }) {
   const [hovered, setHovered] = useState(null);
 
-  const role = localStorage.getItem("user_role");
+  const categories = [
+    { label: "Paper Publications", key: "rnd-publications" },
+    { label: "Research Policy & RND Committee", key: "rnd-policy" },
+    { label: "Faculty Development Programs", key: "fdp" },
+    { label: "Doctoral Thesis Guided/Guiding", key: "rnd-doctoral-thesis" },
+    { label: "Research Projects", key: "rnd-projects" },
+    { label: "Professional Memberships", key: "rnd-memberships" },
+    { label: "IPRs", key: "rnd-iprs" },
+    { label: "Incubation Centre", key: "rnd-incubation" },
+    { label: "Consultancy", key: "rnd-consultancy" },
 
-const categories = [
-  { label: "Paper Publications", key: "rnd-publications" },
-  { label: "Research Policy & RND Committee", key: "rnd-policy" },
-  { label: "Faculty Development Programs", key: "fdp" },
-  { label: "Doctoral Thesis Guided/Guiding", key: "rnd-doctoral-thesis" },
-  { label: "Research Projects", key: "rnd-projects" },
-  { label: "Professional Memberships", key: "rnd-memberships" },
-  { label: "IPRs", key: "rnd-iprs" },
-  { label: "Incubation Centre", key: "rnd-incubation" },
-  { label: "Consultancy", key: "rnd-consultancy" },
-  ...(role === "HOD"
-    ? [{ key: "rnd-mous", label: "MOUs (Memorandum of Understanding)" }]
-    : [])
-];
+    // ✅ ONLY FOR HOD
+    ...(role === "HOD"
+      ? [{ key: "rnd-mous", label: "MOUs (Memorandum of Understanding)" }]
+      : [])
+  ];
+
   return (
     <div style={wrapper}>
       <div style={headerSection}>

@@ -153,6 +153,7 @@ try {
 
 const formData = new FormData();
 
+
 /* TITLE */
 
 const autoTitle =
@@ -169,6 +170,7 @@ form.bookTitle ||
 "";
 
 formData.append("title", autoTitle);
+
 
 /* METADATA */
 

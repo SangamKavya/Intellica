@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useResponsive } from "../../hooks/useResponsive";
+import "../../styles/responsiveDashboard.css";
+
 import AdminHome from "./sections/AdminHome";
 import FacultyList from "./sections/FacultyList";
 import HodList from "./sections/HodList";
@@ -10,6 +13,7 @@ import AdminHeader from "./sections/AdminHeader";
 
 function AdminDashboard({ setPage }) {
 
+const responsive = useResponsive();
 const [view,setView] = useState("home");
 
 /* LOGOUT */
@@ -123,7 +127,8 @@ const menuItems = [
 
 const container={
 minHeight:"100vh",
-background:"linear-gradient(180deg,#c7d2fe 0%,#e9d5ff 100%)"
+background:"linear-gradient(180deg,#c7d2fe 0%,#e9d5ff 100%)",
+paddingTop:"100px"
 };
 const header={
 height:70,

@@ -1,7 +1,10 @@
 import { useMemo } from "react";
+import { useResponsive } from "../../hooks/useResponsive";
+import "../../styles/responsiveDashboard.css";
 import { mockUploads } from "../../data/mockUploads";
 
 function UserDashboard({ userId, role }) {
+  const responsive = useResponsive();
   // Only approved uploads of THIS user
   const myUploads = useMemo(
     () =>

@@ -1,5 +1,9 @@
 /* ================= PDC CATEGORIES ================= */
 
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useResponsive } from "../../hooks/useResponsive";
+import "../../styles/responsiveDashboard.css";
+
 import Conferences from "../faculty/categories/Conferences";
 import Workshops from "../faculty/categories/Workshops";
 import FDP from "../faculty/categories/FDP";
@@ -10,6 +14,7 @@ import Webinars from "../faculty/categories/Webinars";
 import GuestLectures from "../faculty/categories/GuestLectures";
 import HonorsAwards from "../faculty/categories/HonorsAwards";
 import Certifications from "../faculty/categories/Certifications";
+import Others from "../faculty/categories/Others";
 
 /* ================= RND CATEGORIES ================= */
 
@@ -23,7 +28,6 @@ import Incubation from "../faculty/categories/Incubation";
 import Consultancy from "../faculty/categories/Consultancy";
 import MOUs from "../faculty/categories/MOUs";
 
-import { useState, useEffect, useMemo, useRef } from "react";
 import HodHeader from "./HodHeader";
 import API_BASE from "../../api";
 
@@ -44,9 +48,11 @@ import FacultyProfiles from "./sections/FacultyProfiles";
 import DepartmentDashboard from "./sections/DepartmentDashboard";
 import HodPersonalDashboard from "./sections/HodPersonalDashboard";
 import DepartmentAnalytics from "./sections/DepartmentAnalytics";
+import CreditConfigViewer from "../admin/sections/credit-config/common/CreditConfigViewer";
 
 function HodDashboard({ setPage = () => {}, readOnly = false, hodUser = null }){
 
+  const responsive = useResponsive();
   const [view, setView] = useState("dept-dashboard");
   const [uploads, setUploads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,23 +60,26 @@ function HodDashboard({ setPage = () => {}, readOnly = false, hodUser = null }){
   const [user, setUser] = useState(null);
 
   const fileInputRef = useRef(null);
-  const menuItems = readOnly
+  const topMenuItems = [
+  { key: "dept-dashboard", label: "Department Academic Report" }
+];
+
+const bottomMenuItems = [
+  { key: "my-dashboard", label: "Personal Academic Summary" },
+  { key: "pdc", label: "Faculty Professional Activities" },
+  { key: "rnd", label: "Research & Development" },
+  { key: "credits", label: "Credit Rules" }
+];
+
+const extraMenuItems = readOnly
   ? [
-      { key: "dept-dashboard", label: "Department Academic Report" },
-      { key: "my-dashboard", label: "Personal Academic Summary" },
-      { key: "pdc", label: "Faculty Professional Activities" },
-      { key: "rnd", label: "Research & Development" },
-      { key: "dept-analytics", label: "Department Analytics" },
+      { key: "dept-analytics", label: "Department Analytics" }
     ]
   : [
-      { key: "dept-dashboard", label: "Department Academic Report" },
-      { key: "my-dashboard", label: "Personal Academic Summary" },
-      { key: "pdc", label: "Faculty Professional Activities" },
-      { key: "rnd", label: "Research & Development" },
       { key: "approve-uploads", label: "Approve Faculty Submissions" },
       { key: "approve-faculty", label: "Approve Faculty Accounts" },
       { key: "faculty-profiles", label: "Faculty Profiles" },
-      { key: "dept-analytics", label: "Department Analytics" },
+      { key: "dept-analytics", label: "Department Analytics" }
     ];
 
   const department = localStorage.getItem("user_department");
@@ -188,27 +197,27 @@ const hodUploads = uploads.filter((u) => {
 });
 const hodId = hodUser?._id || user?._id;
 
-  if (loading) return <div style={{ padding: 50 }}>Loading...</div>;
+  if (loading) return <div className="hod-loading">Loading...</div>;
 
 
   return (
 
-    <div style={wrapper}>
+    <div className="hod-wrapper">
 
       {/* FIXED HERE */}
       <HodHeader user={user} />
 
-      <div style={layout}>
+      <div className="hod-layout">
 
         {/* ================= SIDEBAR ================= */}
 
-        <div style={sidebar}>
+        <div className="hod-sidebar">
 
   {/* TOP SECTION */}
 
   <div>
 
-    <div style={profileSection}>
+    <div style={profileSection} className="hod-profile-section">
 
       <img
         src={
@@ -232,26 +241,66 @@ const hodId = hodUser?._id || user?._id;
         Click to change image
       </div>
 
-      <ProfileInfo user={user} />
+      <ProfileInfo user={user} readOnly={readOnly} />
 
     </div>
 
     <div style={sidebarTitle}>Intellica</div>
 
-    {menuItems.map(item => (
+    {/* ===== TOP MENU ===== */}
+{topMenuItems.map(item => (
+  <div
+    key={item.key}
+    onClick={() => setView(item.key)}
+    style={{
+      ...menuItem,
 
-      <div
-        key={item.key}
-        onClick={() => setView(item.key)}
-        style={{
-          ...menuItem,
-          ...(view === item.key ? activeItem : {})
-        }}
-      >
-        {item.label}
-      </div>
+      // ✅ UNIQUE COLOR ALWAYS
+      background: "#e0f2fe",
+      color: "#0369a1",
+      fontWeight: 700,
 
-    ))}
+      // ✅ EXTRA highlight when active
+      ...(view === item.key
+        ? {
+            background: "#0ea5e9",
+            color: "white"
+          }
+        : {})
+    }}
+  >
+    {item.label}
+  </div>
+))}
+{/* ===== EXTRA MENU ===== */}
+{extraMenuItems.map(item => (
+  <div
+    key={item.key}
+    onClick={() => setView(item.key)}
+    style={{
+      ...menuItem,
+      ...(view === item.key ? activeItem : {})
+    }}
+  >
+    {item.label}
+  </div>
+))}
+
+<hr style={{ margin: "15px 0" }} />
+
+{/* ===== BOTTOM MENU ===== */}
+{bottomMenuItems.map(item => (
+  <div
+    key={item.key}
+    onClick={() => setView(item.key)}
+    style={{
+      ...menuItem,
+      ...(view === item.key ? activeItem : {})
+    }}
+  >
+    {item.label}
+  </div>
+))}
 
   </div>
 
@@ -267,7 +316,7 @@ const hodId = hodUser?._id || user?._id;
 
         {/* ================= CONTENT ================= */}
 
-        <div style={content}>
+        <div className="hod-content">
 
           {view === "dept-dashboard" &&
             <DepartmentDashboard
@@ -279,7 +328,7 @@ const hodId = hodUser?._id || user?._id;
          {view === "my-dashboard" &&
         <HodPersonalDashboard
           uploads={hodUploads}
-          hodId={hodUser?._id}
+          hodId={hodUser?._id || user?._id}
         />
       }
           {view === "pdc" &&
@@ -287,7 +336,7 @@ const hodId = hodUser?._id || user?._id;
           }
 
           {view === "rnd" &&
-            <RnD onSelectCategory={setView} />
+            <RnD onSelectCategory={setView} role="HOD" />
           }
 
           {view === "approve-uploads" &&
@@ -305,6 +354,7 @@ const hodId = hodUser?._id || user?._id;
           {view === "dept-analytics" &&
             <DepartmentAnalytics uploads={departmentApprovedUploads} />
           }
+          {view === "credits" && <CreditConfigViewer />}
         {/* ================= PDC CATEGORY VIEWS ================= */}
 
 {/* ================= PDC CATEGORY VIEWS ================= */}
@@ -347,6 +397,9 @@ const hodId = hodUser?._id || user?._id;
 
 {view === "certifications" &&
   <Certifications mode="approved" facultyId={hodId} onBack={() => setView("pdc")} />
+}
+{view === "others" &&
+  <Others mode="approved" facultyId={hodId} onBack={() => setView("pdc")} />
 }
 
 {/* ================= RND CATEGORY VIEWS ================= */}
@@ -464,12 +517,16 @@ const content = {
 
 const menuItem = {
   marginBottom: 10,
-  padding: "8px 10px",
-  cursor: "pointer"
+  padding: "10px 12px",
+  cursor: "pointer",
+  borderRadius: 6,
+  transition: "all 0.2s ease"
 };
 
 const activeItem = {
-  background: "rgba(255,255,255,0.4)",
-  borderLeft: "3px solid #4f46e5",
-  fontWeight: 600
+  background: "#e0e7ff",
+  borderLeft: "4px solid #4f46e5",
+  fontWeight: 700,
+  color: "#1e293b",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.08)"
 };
