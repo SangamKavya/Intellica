@@ -13,8 +13,12 @@ function Header({ title = "", subtitle = "", logo = null, children }) {
     <header className="header">
       <div className="container">
         <div className="logo">
-          <button className="hamburger" onClick={toggleSidebar} aria-label="Open menu">
-            ☰
+          <button className="hamburger" onClick={toggleSidebar} aria-label="Toggle menu">
+            <span className="hamburger-icon" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
           </button>
 
           <div>

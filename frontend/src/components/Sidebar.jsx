@@ -1,13 +1,30 @@
 import { useEffect, useState } from "react";
 
 function Sidebar({ menu = [], onSelect = () => {}, profile = null, bottom = null }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => {
+    try {
+      return typeof window !== "undefined" && window.innerWidth >= 1000;
+    } catch (e) {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const handler = () => setOpen((v) => !v);
     window.addEventListener("toggleSidebar", handler);
     return () => window.removeEventListener("toggleSidebar", handler);
   }, []);
+
+  // Reflect sidebar state on <body> so other components (header icon)
+  // can animate based on the presence of the `sidebar-open` class.
+  useEffect(() => {
+    try {
+      if (open) document.body.classList.add("sidebar-open");
+      else document.body.classList.remove("sidebar-open");
+    } catch (e) {
+      // noop
+    }
+  }, [open]);
 
   return (
     <>

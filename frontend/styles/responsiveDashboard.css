@@ -1,0 +1,72 @@
+/* Responsive dashboard helper styles used by multiple pages */
+
+.dashboard-container{
+  max-width:1200px;
+  margin: 0 auto;
+  padding: 20px 24px 80px;
+  box-sizing: border-box;
+}
+
+.dashboard-title{
+  font-size:28px;
+  margin-bottom:6px;
+}
+
+.summary-row{
+  display:flex;
+  gap:18px;
+  margin-top:18px;
+  flex-wrap:wrap;
+}
+
+.summary-card{
+  background:white;
+  color:#0f172a;
+  border-radius:12px;
+  padding:18px 20px;
+  min-width:180px;
+  flex:0 1 240px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  cursor:pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.summary-card p{ margin:0; color:#374151; font-size:13px; }
+.summary-card h2{ margin:8px 0 0; font-size:22px; }
+
+.dept-row, .activity-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:8px;
+  background: transparent;
+}
+
+.bar-container{
+  height:12px;
+  background:#eef2ff;
+  width:220px;
+  border-radius:8px;
+  overflow:hidden;
+  margin: 0 12px;
+}
+
+.activity-row .bar-container{ width:220px; }
+
+@media (max-width: 900px){
+  .dashboard-container{ padding:14px; }
+  .dashboard-title{ font-size:22px; }
+  .summary-card{ flex: 1 1 45%; min-width:140px; }
+  .bar-container{ width:140px; }
+}
+
+@media (max-width: 520px){
+  .dashboard-container{ padding:12px; }
+  .summary-row{ gap:12px; }
+  .summary-card{ flex: 1 1 100%; }
+  .activity-row{ flex-direction:row; align-items:center; }
+  .activity-row span{ font-size:13px; }
+  .bar-container{ width:120px; }
+}

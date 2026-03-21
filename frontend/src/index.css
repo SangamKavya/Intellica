@@ -219,6 +219,53 @@ img{ max-width:100%; height:auto; display:block; }
   cursor: pointer;
 }
 
+/* Ensure hamburger is above other elements and accessible */
+.hamburger{
+  z-index: 600;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hamburger icon bars */
+.hamburger-icon{
+  display:inline-block;
+  width:20px;
+  height:16px;
+  position:relative;
+}
+.hamburger-icon span{
+  position:absolute;
+  left:0;
+  right:0;
+  height:2px;
+  background: white;
+  border-radius:2px;
+  transition: transform 260ms cubic-bezier(.2,.9,.3,1), opacity 160ms ease;
+}
+.hamburger-icon span:nth-child(1){ top:2px; }
+.hamburger-icon span:nth-child(2){ top:7px; }
+.hamburger-icon span:nth-child(3){ top:12px; }
+
+/* When sidebar is open, morph bars into an X */
+:root .sidebar-open .hamburger .hamburger-icon span:nth-child(1){
+  transform: translateY(5px) rotate(45deg);
+}
+:root .sidebar-open .hamburger .hamburger-icon span:nth-child(2){
+  opacity: 0;
+  transform: scaleX(0);
+}
+:root .sidebar-open .hamburger .hamburger-icon span:nth-child(3){
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+/* Allow the close button inside the sidebar to remain as an X */
+.sidebar .hamburger{ background:transparent; border:none; font-size:16px; color:white; }
+
+/* (hamburger visible on all screen sizes so user can hide/show sidebar) */
+
 .sidebar{
   position: fixed;
   left: 0;
